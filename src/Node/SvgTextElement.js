@@ -4,20 +4,22 @@ import PropTypes from 'prop-types';
 
 export default class SvgTextElement extends React.PureComponent {
   render() {
-    const { name, nodeStyle, textLayout, attributes } = this.props;
+    const { name, nodeStyle, textLayout, attributes, nameLink } = this.props;
     return (
       <g>
-        <text
-          className="nodeNameBase"
-          style={nodeStyle.name}
-          textAnchor={textLayout.textAnchor}
-          x={textLayout.x}
-          y={textLayout.y}
-          transform={textLayout.transform}
-          dy=".35em"
-        >
-          {name}
-        </text>
+        <a href={nameLink} onClick={event => event.stopPropagation()}>
+          <text
+            className="nodeNameBase"
+            style={nodeStyle.name}
+            textAnchor={textLayout.textAnchor}
+            x={textLayout.x}
+            y={textLayout.y}
+            transform={textLayout.transform}
+            dy=".35em"
+          >
+            {name}
+          </text>
+        </a>
         <text
           className="nodeAttributesBase"
           y={textLayout.y + 10}
@@ -38,11 +40,13 @@ export default class SvgTextElement extends React.PureComponent {
 }
 
 SvgTextElement.defaultProps = {
+  nameLink: undefined,
   attributes: undefined,
 };
 
 SvgTextElement.propTypes = {
   name: PropTypes.string.isRequired,
+  nameLink: PropTypes.string,
   attributes: PropTypes.object,
   textLayout: PropTypes.object.isRequired,
   nodeStyle: PropTypes.object.isRequired,
