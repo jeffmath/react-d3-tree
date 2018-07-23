@@ -120,7 +120,11 @@ export default class Node extends React.Component {
           this.node = n;
         }}
         style={this.state.initialStyle}
-        className={nodeData._children ? 'nodeBase' : 'leafNodeBase'}
+        className={
+          nodeData._children
+            ? `nodeBase ${nodeData._collapsed ? ' collapsed' : ''}`
+            : 'leafNodeBase'
+        }
         transform={this.state.transform}
         onClick={this.handleClick}
         onMouseOver={this.handleOnMouseOver}

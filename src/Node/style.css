@@ -1,20 +1,24 @@
 .nodeBase {
-  cursor: pointer;
+  cursor: zoom-out;
   fill: #777;
   stroke: #000;
   stroke-width: 2;
 }
 
+.collapsed {
+  cursor: zoom-in;
+}
+
 .leafNodeBase {
-  cursor: pointer;
   fill: transparent;
   stroke: #000;
   stroke-width: 2;
 }
 
 .nodeNameBase {
-  fill: #000;
-  stroke: #000;
+  cursor: pointer;
+  fill: #2a97d2;
+  stroke: #2a97d2;
   stroke-width: 1;
 }
 
