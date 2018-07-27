@@ -8,7 +8,7 @@ export default class SvgTextElement extends React.PureComponent {
     return (
       <g>
         <text
-          className="nodeNameBase"
+          className={`nodeNameBase ${nodeData.nameLink ? ' nodeNameLink' : ''}`}
           style={nodeStyle.name}
           textAnchor={textLayout.textAnchor}
           x={textLayout.x}
@@ -16,8 +16,10 @@ export default class SvgTextElement extends React.PureComponent {
           transform={textLayout.transform}
           dy=".35em"
           onClick={event => {
-            window.location.href = nodeData.nameLink;
-            event.stopPropagation();
+            if (nodeData.nameLink) {
+              window.location.href = nodeData.nameLink;
+              event.stopPropagation();
+            }
           }}
         >
           {name}

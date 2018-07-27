@@ -1,6 +1,6 @@
 .nodeBase {
   cursor: zoom-out;
-  fill: #777;
+  fill: lightgray;
   stroke: #000;
   stroke-width: 2;
 }
@@ -10,12 +10,18 @@
 }
 
 .leafNodeBase {
-  fill: transparent;
+  fill: white;
   stroke: #000;
   stroke-width: 2;
 }
 
 .nodeNameBase {
+  font-size: 0.9rem;
+  stroke-width: 0.25;
+  fill: black;
+}
+
+.nodeNameLink {
   cursor: pointer;
   fill: #2a97d2;
   stroke: #2a97d2;
@@ -25,6 +31,6 @@
 .nodeAttributesBase {
   fill: #777;
   stroke: #777;
-  stroke-width: 1;
+  stroke-width: 0.25;
   font-size: smaller;
 }
