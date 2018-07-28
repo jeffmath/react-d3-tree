@@ -135,7 +135,11 @@ export default class Node extends React.Component {
         {allowForeignObjects && nodeLabelComponent ? (
           <ForeignObjectElement nodeData={nodeData} nodeSize={nodeSize} {...nodeLabelComponent} />
         ) : (
-          <SvgTextElement {...this.props} nodeStyle={nodeStyle} />
+          <SvgTextElement
+            {...this.props}
+            nodeStyle={nodeStyle}
+            unlabeledAttributes={nodeData.unlabeledAttributes}
+          />
         )}
       </g>
     );
@@ -145,6 +149,7 @@ export default class Node extends React.Component {
 Node.defaultProps = {
   nodeLabelComponent: null,
   attributes: undefined,
+  unlabeledAttributes: [],
   circleRadius: undefined,
   styles: {
     node: {
@@ -172,6 +177,7 @@ Node.propTypes = {
   onMouseOut: PropTypes.func.isRequired,
   name: PropTypes.string.isRequired,
   attributes: PropTypes.object,
+  unlabeledAttributes: PropTypes.array,
   textLayout: PropTypes.object.isRequired,
   subscriptions: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
   allowForeignObjects: PropTypes.bool.isRequired,

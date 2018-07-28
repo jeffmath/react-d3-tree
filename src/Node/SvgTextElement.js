@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 export default class SvgTextElement extends React.PureComponent {
   render() {
-    const { name, nodeStyle, textLayout, attributes, nodeData } = this.props;
+    const { name, nodeStyle, textLayout, attributes, nodeData, unlabeledAttributes } = this.props;
     return (
       <g>
         <text
@@ -34,7 +34,8 @@ export default class SvgTextElement extends React.PureComponent {
           {attributes &&
             Object.keys(attributes).map(labelKey => (
               <tspan x={textLayout.x} dy="1.2em" key={uuid.v4()}>
-                {labelKey}: {attributes[labelKey]}
+                {unlabeledAttributes.indexOf(labelKey) < 0 ? `${labelKey}: ` : ''}
+                {attributes[labelKey]}
               </tspan>
             ))}
         </text>
@@ -46,6 +47,7 @@ export default class SvgTextElement extends React.PureComponent {
 SvgTextElement.defaultProps = {
   nodeData: undefined,
   attributes: undefined,
+  unlabeledAttributes: [],
 };
 
 SvgTextElement.propTypes = {
@@ -54,4 +56,5 @@ SvgTextElement.propTypes = {
   attributes: PropTypes.object,
   textLayout: PropTypes.object.isRequired,
   nodeStyle: PropTypes.object.isRequired,
+  unlabeledAttributes: PropTypes.array,
 };
