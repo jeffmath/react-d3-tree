@@ -139,6 +139,7 @@ export default class Node extends React.Component {
             {...this.props}
             nodeStyle={nodeStyle}
             unlabeledAttributes={nodeData.unlabeledAttributes}
+            copyableAttributes={nodeData.copyableAttributes}
           />
         )}
       </g>
@@ -150,6 +151,7 @@ Node.defaultProps = {
   nodeLabelComponent: null,
   attributes: undefined,
   unlabeledAttributes: [],
+  copyableAttributes: [],
   circleRadius: undefined,
   styles: {
     node: {
@@ -178,6 +180,7 @@ Node.propTypes = {
   name: PropTypes.string.isRequired,
   attributes: PropTypes.object,
   unlabeledAttributes: PropTypes.array,
+  copyableAttributes: PropTypes.array,
   textLayout: PropTypes.object.isRequired,
   subscriptions: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
   allowForeignObjects: PropTypes.bool.isRequired,

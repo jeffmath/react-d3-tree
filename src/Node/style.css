@@ -34,3 +34,8 @@
   stroke-width: 0.25;
   font-size: smaller;
 }
+
+.copyLink {
+  cursor: default;
+  text-decoration: underline;
+}

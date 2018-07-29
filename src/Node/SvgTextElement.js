@@ -1,10 +1,19 @@
 import React from 'react';
 import uuid from 'uuid';
 import PropTypes from 'prop-types';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class SvgTextElement extends React.PureComponent {
   render() {
-    const { name, nodeStyle, textLayout, attributes, nodeData, unlabeledAttributes } = this.props;
+    const {
+      name,
+      nodeStyle,
+      textLayout,
+      attributes,
+      nodeData,
+      unlabeledAttributes,
+      copyableAttributes,
+    } = this.props;
     return (
       <g>
         <text
@@ -36,6 +45,16 @@ export default class SvgTextElement extends React.PureComponent {
               <tspan x={textLayout.x} dy="1.2em" key={uuid.v4()}>
                 {unlabeledAttributes.indexOf(labelKey) < 0 ? `${labelKey}: ` : ''}
                 {attributes[labelKey]}
+                {copyableAttributes.indexOf(labelKey) >= 0 && (
+                  <tspan>
+                    &nbsp;&nbsp;
+                    <CopyToClipboard text={attributes[labelKey]}>
+                      <tspan className="copyLink" onClick={e => e.stopPropagation()}>
+                        Copy
+                      </tspan>
+                    </CopyToClipboard>
+                  </tspan>
+                )}
               </tspan>
             ))}
         </text>
@@ -48,6 +67,7 @@ SvgTextElement.defaultProps = {
   nodeData: undefined,
   attributes: undefined,
   unlabeledAttributes: [],
+  copyableAttributes: [],
 };
 
 SvgTextElement.propTypes = {
@@ -57,4 +77,5 @@ SvgTextElement.propTypes = {
   textLayout: PropTypes.object.isRequired,
   nodeStyle: PropTypes.object.isRequired,
   unlabeledAttributes: PropTypes.array,
+  copyableAttributes: PropTypes.array,
 };

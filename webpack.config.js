@@ -36,6 +36,7 @@ const config = {
     'prop-types',
     'uuid',
     'deep-equal',
+    'react-copy-to-clipboard',
   ],
   module: {
     rules: [
