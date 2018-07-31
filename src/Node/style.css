@@ -9,6 +9,13 @@
   cursor: zoom-in;
 }
 
+/* IE 11 fallback behavior */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .collapsed, .nodeBase {
+    cursor: pointer;
+  }
+}
+
 .leafNodeBase {
   fill: white;
   stroke: #000;
