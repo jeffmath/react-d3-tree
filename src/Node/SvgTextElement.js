@@ -17,7 +17,9 @@ export default class SvgTextElement extends React.PureComponent {
     return (
       <g>
         <text
-          className={`nodeNameBase ${nodeData.nameLink ? ' nodeNameLink' : ''}`}
+          className={`nodeNameBase ${nodeData.nameLink ? ' nodeNameLink' : ''} ${name.length > 40
+            ? ' longNodeName'
+            : ''}`}
           style={nodeStyle.name}
           textAnchor={textLayout.textAnchor}
           x={textLayout.x}

@@ -35,6 +35,10 @@
   stroke-width: 1;
 }
 
+.longNodeName {
+  font-size: smaller;
+}
+
 .nodeAttributesBase {
   fill: #777;
   stroke: #777;
