@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { layout, select, behavior, event } from 'd3';
+import { tree as d3tree, hierarchy, select, zoom as d3zoom, event } from 'd3';
 import clone from 'clone';
 import deepEqual from 'deep-equal';
 import uuid from 'uuid';
@@ -110,28 +110,28 @@ export default class Tree extends React.Component {
 
     if (zoomable) {
       svg.call(
-        behavior
-          .zoom()
+        d3zoom()
           .scaleExtent([scaleExtent.min, scaleExtent.max])
           .on('zoom', () => {
-            g.attr('transform', `translate(${event.translate}) scale(${event.scale})`);
+            g.attr('transform', event.transform);
             if (typeof onUpdate === 'function') {
               // This callback is magically called not only on "zoom", but on "drag", as well,
               // even though event.type == "zoom".
               // Taking advantage of this and not writing a "drag" handler.
               onUpdate({
                 node: null,
-                zoom: event.scale,
-                translate: { x: event.translate[0], y: event.translate[1] },
+                zoom: event.k,
+                translate: { x: event.transform.x, y: event.transform.y },
               });
-              this.internalState.d3.scale = event.scale;
-              this.internalState.d3.translate = { x: event.translate[0], y: event.translate[1] };
+              this.internalState.d3.scale = event.k;
+              this.internalState.d3.translate = { x: event.transform.x, y: event.transform.y };
             }
-          })
-          // Offset so that first pan and zoom does not jump back to [0,0] coords
-          .scale(zoom)
-          .translate([translate.x, translate.y]),
+          }),
       );
+
+      // Offset so that first pan and zoom does not jump back to [0,0] coords
+      d3zoom().scaleBy(svg, zoom);
+      d3zoom().translateBy(svg, translate.x, translate.y);
     }
   }
 
@@ -304,21 +304,19 @@ export default class Tree extends React.Component {
   generateTree() {
     const { initialDepth, depthFactor, separation, nodeSize, orientation } = this.props;
 
-    const tree = layout
-      .tree()
+    const tree = d3tree()
       .nodeSize(orientation === 'horizontal' ? [nodeSize.y, nodeSize.x] : [nodeSize.x, nodeSize.y])
       .separation(
         (a, b) => (a.parent.id === b.parent.id ? separation.siblings : separation.nonSiblings),
-      )
-      .children(d => (d._collapsed ? null : d._children));
+      );
 
-    const rootNode = this.state.data[0];
-    let nodes = tree.nodes(rootNode);
+    const rootNode = hierarchy(this.state.data[0], d => (d._collapsed ? null : d._children));
+    let nodes = rootNode.descendants();
 
     // set `initialDepth` on first render if specified
     if (initialDepth !== undefined && this.internalState.initialRender) {
       this.setInitialTreeDepth(nodes, initialDepth);
-      nodes = tree.nodes(rootNode);
+      nodes = tree.nodes(rootNode); // TODO convert to D3 V4
     }
 
     if (depthFactor) {
@@ -327,7 +325,10 @@ export default class Tree extends React.Component {
       });
     }
 
-    const links = tree.links(nodes);
+    // lay out the tree
+    tree(rootNode);
+
+    const links = rootNode.links();
     return { nodes, links };
   }
 
@@ -400,28 +401,32 @@ export default class Tree extends React.Component {
               />
             ))}
 
-            {nodes.map(nodeData => (
-              <Node
-                key={nodeData.id}
-                nodeSvgShape={{ ...nodeSvgShape, ...nodeData.nodeSvgShape }}
-                nodeLabelComponent={nodeLabelComponent}
-                nodeSize={nodeSize}
-                orientation={orientation}
-                transitionDuration={transitionDuration}
-                nodeData={nodeData}
-                name={nodeData.name}
-                nameLink={nodeData.nameLink}
-                attributes={nodeData.attributes}
-                onClick={this.handleNodeToggle}
-                onMouseOver={this.handleOnMouseOverCb}
-                onMouseOut={this.handleOnMouseOutCb}
-                textLayout={textLayout}
-                circleRadius={circleRadius}
-                subscriptions={subscriptions}
-                allowForeignObjects={allowForeignObjects}
-                styles={styles.nodes}
-              />
-            ))}
+            {nodes.map(node => {
+              const { data } = node;
+              return (
+                <Node
+                  key={data.id}
+                  node={node}
+                  nodeSvgShape={{ ...nodeSvgShape, ...data.nodeSvgShape }}
+                  nodeLabelComponent={nodeLabelComponent}
+                  nodeSize={nodeSize}
+                  orientation={orientation}
+                  transitionDuration={transitionDuration}
+                  nodeData={data}
+                  name={data.name}
+                  nameLink={data.nameLink}
+                  attributes={data.attributes}
+                  onClick={this.handleNodeToggle}
+                  onMouseOver={this.handleOnMouseOverCb}
+                  onMouseOut={this.handleOnMouseOutCb}
+                  textLayout={textLayout}
+                  circleRadius={circleRadius}
+                  subscriptions={subscriptions}
+                  allowForeignObjects={allowForeignObjects}
+                  styles={styles.nodes}
+                />
+              );
+            })}
           </NodeWrapper>
         </svg>
       </div>

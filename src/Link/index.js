@@ -31,7 +31,7 @@ export default class Link extends React.PureComponent {
         .transition()
         .duration(transitionDuration)
         .style('opacity', opacity)
-        .each('end', done);
+        .on('end', done);
     }
   }
 

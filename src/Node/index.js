@@ -9,7 +9,7 @@ import ForeignObjectElement from './ForeignObjectElement';
 export default class Node extends React.Component {
   constructor(props) {
     super(props);
-    const { nodeData: { parent }, orientation } = props;
+    const { node: { parent }, orientation } = props;
     const originX = parent ? parent.x : 0;
     const originY = parent ? parent.y : 0;
 
@@ -26,7 +26,7 @@ export default class Node extends React.Component {
   }
 
   componentDidMount() {
-    const { nodeData: { x, y }, orientation, transitionDuration } = this.props;
+    const { node: { x, y }, orientation, transitionDuration } = this.props;
     const transform = this.setTransformOrientation(x, y, orientation);
 
     this.applyTransform(transform, transitionDuration);
@@ -34,8 +34,8 @@ export default class Node extends React.Component {
 
   componentWillUpdate(nextProps) {
     const transform = this.setTransformOrientation(
-      nextProps.nodeData.x,
-      nextProps.nodeData.y,
+      nextProps.node.x,
+      nextProps.node.y,
       nextProps.orientation,
     );
     this.applyTransform(transform, nextProps.transitionDuration);
@@ -48,8 +48,8 @@ export default class Node extends React.Component {
   shouldNodeTransform(ownProps, nextProps) {
     return (
       nextProps.subscriptions !== ownProps.subscriptions ||
-      nextProps.nodeData.x !== ownProps.nodeData.x ||
-      nextProps.nodeData.y !== ownProps.nodeData.y ||
+      nextProps.node.x !== ownProps.node.x ||
+      nextProps.node.y !== ownProps.node.y ||
       nextProps.orientation !== ownProps.orientation
     );
   }
@@ -70,7 +70,7 @@ export default class Node extends React.Component {
         .duration(transitionDuration)
         .attr('transform', transform)
         .style('opacity', opacity)
-        .each('end', done);
+        .on('end', done);
     }
   }
 
@@ -102,7 +102,7 @@ export default class Node extends React.Component {
   }
 
   componentWillLeave(done) {
-    const { nodeData: { parent }, orientation, transitionDuration } = this.props;
+    const { node: { parent }, orientation, transitionDuration } = this.props;
     const originX = parent ? parent.x : 0;
     const originY = parent ? parent.y : 0;
     const transform = this.setTransformOrientation(originX, originY, orientation);
@@ -168,6 +168,7 @@ Node.defaultProps = {
 };
 
 Node.propTypes = {
+  node: PropTypes.object.isRequired,
   nodeData: PropTypes.object.isRequired,
   nodeSvgShape: PropTypes.object.isRequired,
   nodeLabelComponent: PropTypes.object,
