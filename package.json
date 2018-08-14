@@ -1,12 +1,12 @@
 {
   "name": "react-d3-tree",
-  "version": "1.10.6",
+  "version": "1.10.7",
   "description": "React component to create interactive D3 tree hierarchies",
   "main": "lib/react-d3-tree.js",
   "scripts": {
     "clean:lib": "rimraf lib/*",
     "precommit": "lint-staged",
-    "build": "yarn clean:lib && webpack --progress --colors --env build",
+    "build": "yarn clean:lib && webpack --progress --colors --env dev",
     "dev": "yarn clean:lib && webpack --progress --colors --watch --env dev",
     "lint": "eslint src/**/*.js",
     "test": "yarn lint && jest --coverage --verbose",
