@@ -5,8 +5,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class SvgTextElement extends React.PureComponent {
   render() {
+    const name = this.props.name.substr(0, 90);
     const {
-      name,
       nodeStyle,
       textLayout,
       attributes,
@@ -17,9 +17,9 @@ export default class SvgTextElement extends React.PureComponent {
     return (
       <g>
         <text
-          className={`nodeNameBase ${nodeData.nameLink ? ' nodeNameLink' : ''} ${name.length > 40
-            ? ' longNodeName'
-            : ''}`}
+          className={`nodeNameBase ${nodeData.nameLink ? ' nodeNameLink' : ''} ${name.length >= 80
+            ? ' superLongNodeName'
+            : name.length >= 60 ? ' extraLongNodeName' : name.length >= 40 ? ' longNodeName' : ''}`}
           style={nodeStyle.name}
           textAnchor={textLayout.textAnchor}
           x={textLayout.x}

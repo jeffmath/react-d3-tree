@@ -39,6 +39,14 @@
   font-size: smaller;
 }
 
+.extraLongNodeName {
+  font-size: x-small;
+}
+
+.superLongNodeName {
+  font-size: xx-small;
+}
+
 .nodeAttributesBase {
   fill: #777;
   stroke: #777;
