@@ -26,6 +26,7 @@ export default class Tree extends React.Component {
         scale: this.props.zoom,
         translate: this.props.translate,
       },
+      nodes: null,
     };
     this.findNodesById = this.findNodesById.bind(this);
     this.collapseNode = this.collapseNode.bind(this);
@@ -103,35 +104,69 @@ export default class Tree extends React.Component {
    * @return {void}
    */
   bindZoomListener(props) {
-    const { zoomable, scaleExtent, translate, zoom, onUpdate } = props;
+    // skip if zooming isn't required
+    if (!props.zoomable) return;
+
+    // setup the zoom behavior on the tree's SVG element
+    const { rd3tSvgClassName } = this.state;
+    const { scaleExtent } = props;
+    const svg = select(`.${rd3tSvgClassName}`);
+    const zoom = d3zoom()
+      .scaleExtent([scaleExtent.min, scaleExtent.max])
+      .on('zoom', () => this.zoom(props));
+    svg.call(zoom);
+
+    // perform the desired initial zoom
+    zoom.scaleBy(svg, props.zoom);
+
+    // put the origin at the center of the SVG element
+    const node = svg.node();
+    zoom.translateBy(svg, node.clientWidth / 2, node.clientHeight / 2);
+  }
+
+  zoom(props) {
+    // limit the horizontal panning to the x-extent of the tree's nodes
+    let { x, y } = event.transform;
     const { rd3tSvgClassName, rd3tGClassName } = this.state;
     const svg = select(`.${rd3tSvgClassName}`);
     const g = select(`.${rd3tGClassName}`);
+    const { k } = event.transform;
+    const svgNode = svg.node();
+    const svgWidth = svgNode.clientWidth;
+    const minX = this.findMinNodeX();
+    const maxX = this.findMaxNodeX();
+    const { shapeProps } = this.props.nodeSvgShape;
+    const halfNodeWidth = shapeProps.width / 2;
+    x = Math.max(svgWidth - (maxX + halfNodeWidth) * k, x); // limit drag-left/pan-right
+    x = Math.min(-(minX - halfNodeWidth) * k, x); // limit drag-right/pan-left
 
-    if (zoomable) {
-      svg.call(
-        d3zoom()
-          .scaleExtent([scaleExtent.min, scaleExtent.max])
-          .on('zoom', () => {
-            g.attr('transform', event.transform);
-            if (typeof onUpdate === 'function') {
-              // This callback is magically called not only on "zoom", but on "drag", as well,
-              // even though event.type == "zoom".
-              // Taking advantage of this and not writing a "drag" handler.
-              onUpdate({
-                node: null,
-                zoom: event.k,
-                translate: { x: event.transform.x, y: event.transform.y },
-              });
-              this.internalState.d3.scale = event.k;
-              this.internalState.d3.translate = { x: event.transform.x, y: event.transform.y };
-            }
-          }),
-      );
+    // limit the vertical panning to the y-extent of the tree's nodes
+    const svgHeight = svgNode.clientHeight;
+    const minY = this.findMinNodeY();
+    const maxY = this.findMaxNodeY();
+    const halfNodeHeight = shapeProps.height / 2;
+    y = Math.max(svgHeight - (maxY + halfNodeHeight) * k, y); // limit drag-up/pan-down
+    y = Math.min(-(minY - halfNodeHeight) * k, y); // limit drag-down/pan-up
 
-      // Offset so that first pan and zoom does not jump back to [0,0] coords
-      d3zoom().scaleBy(svg, zoom);
-      d3zoom().translateBy(svg, translate.x, translate.y);
+    // sync D3's zoom transform with the limits set above
+    event.transform.x = x;
+    event.transform.y = y;
+
+    // apply the zoom and pan to the tree's SVG element
+    g.attr('transform', `translate(${x}, ${y}) scale(${k})`);
+
+    const { onUpdate } = props;
+    if (typeof onUpdate === 'function') {
+      // This callback is magically called not only on "zoom", but on "drag", as well,
+      // even though event.type == "zoom".
+      // Taking advantage of this and not writing a "drag" handler.
+      onUpdate({
+        node: null,
+        zoom: k,
+        translate: { x, y },
+      });
+      this.internalState.d3.scale = k;
+      this.internalState.d3.translate = { x, y };
     }
   }
 
@@ -319,16 +354,17 @@ export default class Tree extends React.Component {
       nodes = tree.nodes(rootNode); // TODO convert to D3 V4
     }
 
+    // lay out the tree
+    tree(rootNode);
+
     if (depthFactor) {
       nodes.forEach(node => {
         node.y = node.depth * depthFactor;
       });
     }
 
-    // lay out the tree
-    tree(rootNode);
-
     const links = rootNode.links();
+    this.internalState.nodes = nodes;
     return { nodes, links };
   }
 
@@ -356,6 +392,18 @@ export default class Tree extends React.Component {
       translate: nextProps.translate,
       scale,
     };
+  }
+
+  findMinNodeX = () => this.findNodeExtremis(true, false);
+  findMaxNodeX = () => this.findNodeExtremis(true, true);
+  findMinNodeY = () => this.findNodeExtremis(false, false);
+  findMaxNodeY = () => this.findNodeExtremis(false, true);
+
+  findNodeExtremis(forX, findMax) {
+    const { nodes } = this.internalState;
+    const comparer = findMax ? Math.max : Math.min;
+    const initialValue = findMax ? Number.MIN_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
+    return nodes.reduce((acc, n) => comparer(acc, forX ? n.y : n.x), initialValue);
   }
 
   render() {
